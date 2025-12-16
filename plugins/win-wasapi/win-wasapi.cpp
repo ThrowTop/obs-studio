@@ -1496,7 +1496,6 @@ static obs_properties_t *GetWASAPIPropertiesInput(void *)
 		obs_property_list_add_string(device_prop, device.name.c_str(), device.id.c_str());
 	}
 
-	// Add override option for matching by name
 	obs_property_list_add_string(device_prop, "Match by Name...", "NAME_MATCH");
 	obs_properties_add_text(props, "device_name_match", obs_module_text("Device Name Match"), OBS_TEXT_DEFAULT);
 
