@@ -33,17 +33,26 @@
       "generator": "Xcode",
       "binaryDir": "${sourceDir}/build_macos",
       "cacheVariables": {
-        "CMAKE_OSX_DEPLOYMENT_TARGET": {"type": "STRING", "value": "12.0"},
-        "OBS_CODESIGN_IDENTITY": {"type": "STRING", "value": "$penv{CODESIGN_IDENT}"},
-        "OBS_CODESIGN_TEAM": {"type": "STRING", "value": "$penv{CODESIGN_TEAM}"},
-        "OBS_PROVISIONING_PROFILE": {"type": "STRING", "value": "$penv{PROVISIONING_PROFILE}"},
-        "VIRTUALCAM_DEVICE_UUID": {"type": "STRING", "value": "7626645E-4425-469E-9D8B-97E0FA59AC75"},
-        "VIRTUALCAM_SINK_UUID": {"type": "STRING", "value": "A3F16177-7044-4DD8-B900-72E2419F7A9A"},
-        "VIRTUALCAM_SOURCE_UUID": {"type": "STRING", "value": "A8D7B8AA-65AD-4D21-9C42-66480DBFA8E1"},
-        "SPARKLE_APPCAST_URL": {"type": "STRING", "value": "https://obsproject.com/osx_update/updates_$(ARCHS)_v2.xml"},
-        "SPARKLE_PUBLIC_KEY": {"type": "STRING", "value": "HQ5/Ba9VHOuEWaM0jtVjZzgHKFJX9YTl+HNVpgNF0iM="},
-        "ENABLE_BROWSER": true
+          "GPU_PRIORITY_VAL": {"type": "STRING", "value": "$penv{GPU_PRIORITY_VAL}"},
+          "VIRTUALCAM_GUID": {"type": "STRING", "value": "A3FCE0F5-3493-419F-958A-ABA1250EC20B"},
+
+          "ENABLE_BROWSER": false,
+          "ENABLE_SCRIPTING": false,
+          "ENABLE_VST": false,
+          "ENABLE_VLC": false,
+          "ENABLE_IMAGE_MAGICK": false,
+          "ENABLE_WEBSOCKET": false,
+          "ENABLE_AJA": false,
+
+          "ENABLE_HEVC": true,
+          "ENABLE_UI": true,
+
+          "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded",
+         "CMAKE_CXX_FLAGS_RELEASE": "/O2 /Ob3 /Oi /Ot /GL /arch:AVX2 /fp:fast /GS- /EHs- /EHa-",
+          "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/LTCG /SAFESEH:NO",
+          "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/LTCG /SAFESEH:NO"
       }
+
     },
     {
       "name": "macos-ci",
@@ -98,14 +107,33 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
-      "architecture": "x64,version=10.0.22621.0",
+      "architecture": "x64",
       "binaryDir": "${sourceDir}/build_x64",
-      "generator": "Visual Studio 17 2022",
+      "generator": "Visual Studio 18 2026",
       "cacheVariables": {
-        "GPU_PRIORITY_VAL": {"type": "STRING", "value": "$penv{GPU_PRIORITY_VAL}"},
-        "VIRTUALCAM_GUID": {"type": "STRING", "value": "A3FCE0F5-3493-419F-958A-ABA1250EC20B"},
-        "ENABLE_BROWSER": true
+          "GPU_PRIORITY_VAL": {"type": "STRING", "value": "$penv{GPU_PRIORITY_VAL}"},
+          "VIRTUALCAM_GUID": {"type": "STRING", "value": "A3FCE0F5-3493-419F-958A-ABA1250EC20B"},
+
+          "ENABLE_BROWSER": false,
+          "ENABLE_WEBSOCKET": false,
+          "ENABLE_SCRIPTING": true,
+          "ENABLE_VST": false,
+          "ENABLE_VLC": false,
+          "ENABLE_IMAGE_MAGICK": false,
+          "ENABLE_SPECTRALIZER": false,
+
+          "ENABLE_D3D12": true,
+          "ENABLE_NVENC": true,
+
+          "ENABLE_LIBX264": false,
+          "ENABLE_AOM": false,
+          "ENABLE_SVTAV1": false,
+          "ENABLE_X265": false,
+
+          "CMAKE_CXX_FLAGS_RELEASE": "/O2 /Ob3 /Oi /Ot /GL /arch:AVX2 /fp:fast /GS-",
+          "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/LTCG"
       }
+
     },
     {
       "name": "windows-ci-x64",

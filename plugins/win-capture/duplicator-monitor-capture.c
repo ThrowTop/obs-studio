@@ -282,10 +282,27 @@ extern bool wgc_supported;
 static struct duplicator_monitor_info find_monitor(const char *monitor_id)
 {
 	struct duplicator_monitor_info monitor = {0};
-	strcpy_s(monitor.device_id, _countof(monitor.device_id), monitor_id);
-	EnumDisplayMonitors(NULL, NULL, &enum_monitor, (LPARAM)&monitor);
+
+	/* handle custom Primary Monitor selection */
+	if (strcmp(monitor_id, "PRIMARY_MONITOR") == 0) {
+		MONITORINFOEXA mi;
+		mi.cbSize = sizeof(mi);
+
+		HMONITOR primary = MonitorFromPoint((POINT){0, 0}, MONITOR_DEFAULTTOPRIMARY);
+
+		if (GetMonitorInfoA(primary, (LPMONITORINFO)&mi)) {
+			strcpy_s(monitor.device_id, sizeof(monitor.device_id), mi.szDevice);
+		} else {
+			strcpy_s(monitor.device_id, sizeof(monitor.device_id), INVALID_DISPLAY);
+		}
+	} else {
+		/* normal behavior */
+		strcpy_s(monitor.device_id, sizeof(monitor.device_id), monitor_id);
+	}
+
+	EnumDisplayMonitors(NULL, NULL, enum_monitor, (LPARAM)&monitor);
 	if (monitor.handle == NULL) {
-		EnumDisplayMonitors(NULL, NULL, &enum_monitor_fallback, (LPARAM)&monitor);
+		EnumDisplayMonitors(NULL, NULL, enum_monitor_fallback, (LPARAM)&monitor);
 	}
 
 	return monitor;
@@ -588,7 +605,6 @@ static void duplicator_capture_tick(void *data, float seconds)
 
 			if (!gs_duplicator_update_frame(capture->duplicator)) {
 				free_capture_data(capture);
-
 			} else if (capture->width == 0) {
 				reset_capture_data(capture);
 			}
@@ -799,25 +815,34 @@ static obs_properties_t *duplicator_capture_properties(void *data)
 	obs_properties_t *props = obs_properties_create();
 	obs_properties_set_param(props, capture, NULL);
 
+	/* method dropdown */
 	obs_property_t *p =
 		obs_properties_add_list(props, "method", TEXT_METHOD, OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
+
 	obs_property_list_add_int(p, TEXT_METHOD_AUTO, METHOD_AUTO);
 	obs_property_list_add_int(p, TEXT_METHOD_DXGI, METHOD_DXGI);
 	obs_property_list_add_int(p, TEXT_METHOD_WGC, METHOD_WGC);
 	obs_property_list_item_disable(p, 2, !wgc_supported);
 	obs_property_set_modified_callback(p, display_capture_method_changed);
 
+	/* monitor dropdown */
 	obs_property_t *monitors = obs_properties_add_list(props, "monitor_id", TEXT_MONITOR, OBS_COMBO_TYPE_LIST,
 							   OBS_COMBO_FORMAT_STRING);
 
+	/* Add our forced "Primary Monitor" option */
+	obs_property_list_add_string(monitors, "Primary Monitor", "PRIMARY_MONITOR");
+
+	/* OBS default behavior */
 	if (capture && strcmp(capture->monitor_id, INVALID_DISPLAY) == 0) {
 		obs_property_list_add_string(monitors, obs_module_text("SelectADisplay"), INVALID_DISPLAY);
-		obs_property_list_item_disable(monitors, 0, true);
+		obs_property_list_item_disable(monitors, 1, true);
 	}
 
+	/* normal options */
 	obs_properties_add_bool(props, "capture_cursor", TEXT_CAPTURE_CURSOR);
 	obs_properties_add_bool(props, "force_sdr", TEXT_FORCE_SDR);
 
+	/* add all actual monitors */
 	EnumDisplayMonitors(NULL, NULL, enum_monitor_props, (LPARAM)monitors);
 
 	return props;

@@ -183,7 +183,6 @@ class WASAPISource {
 			((WASAPISource *)source)->OnStartCapture();
 			return S_OK;
 		}
-
 	} startCapture;
 	ComPtr<IRtwqAsyncResult> startCaptureAsyncResult;
 
@@ -474,6 +473,7 @@ WASAPISource::~WASAPISource()
 WASAPISource::UpdateParams WASAPISource::BuildUpdateParams(obs_data_t *settings)
 {
 	WASAPISource::UpdateParams params;
+
 	params.device_id = obs_data_get_string(settings, OPT_DEVICE_ID);
 	params.useDeviceTiming = obs_data_get_bool(settings, OPT_USE_DEVICE_TIMING);
 	params.isDefaultDevice = _strcmpi(params.device_id.c_str(), "default") == 0;
@@ -481,6 +481,23 @@ WASAPISource::UpdateParams WASAPISource::BuildUpdateParams(obs_data_t *settings)
 	params.window_class.clear();
 	params.title.clear();
 	params.executable.clear();
+
+	// Override device_id if "Match by Name" is selected
+	if (_strcmpi(params.device_id.c_str(), "NAME_MATCH") == 0) {
+		const char *match = obs_data_get_string(settings, "device_name_match");
+		if (match && *match) {
+			vector<AudioDeviceInfo> devices;
+			GetWASAPIAudioDevices(devices, true);
+
+			for (auto &dev : devices) {
+				if (strstr(dev.name.c_str(), match) != nullptr) {
+					params.device_id = dev.id;
+					break;
+				}
+			}
+		}
+	}
+
 	if (sourceType != SourceType::Input) {
 		const char *const window = obs_data_get_string(settings, OPT_WINDOW);
 		char *window_class = nullptr;
@@ -503,7 +520,6 @@ WASAPISource::UpdateParams WASAPISource::BuildUpdateParams(obs_data_t *settings)
 
 	return params;
 }
-
 void WASAPISource::UpdateSettings(UpdateParams &&params)
 {
 	// Signal to deduplication logic in case the device is also used for monitoring.
@@ -901,7 +917,6 @@ bool WASAPISource::TryInitialize()
 	try {
 		Initialize();
 		success = true;
-
 	} catch (HRError &error) {
 		if (!previouslyFailed) {
 			blog(LOG_WARNING, "[WASAPISource::TryInitialize]:[%s] %s: %lX",
@@ -1471,13 +1486,19 @@ static obs_properties_t *GetWASAPIPropertiesInput(void *)
 
 	GetWASAPIAudioDevices(devices, true);
 
+	// Add default option
 	if (devices.size())
 		obs_property_list_add_string(device_prop, obs_module_text("Default"), "default");
 
+	// Add actual devices
 	for (size_t i = 0; i < devices.size(); i++) {
 		AudioDeviceInfo &device = devices[i];
 		obs_property_list_add_string(device_prop, device.name.c_str(), device.id.c_str());
 	}
+
+	// Add override option for matching by name
+	obs_property_list_add_string(device_prop, "Match by Name...", "NAME_MATCH");
+	obs_properties_add_text(props, "device_name_match", obs_module_text("Device Name Match"), OBS_TEXT_DEFAULT);
 
 	obs_properties_add_bool(props, OPT_USE_DEVICE_TIMING, obs_module_text("UseDeviceTiming"));
 
