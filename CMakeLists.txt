@@ -13,7 +13,6 @@ if(MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8)
     /Ob3
     /Oi
     /Ot
-    /fp:fast
     /GS-
     /Gy
     /Qpar
