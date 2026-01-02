@@ -114,23 +114,16 @@
           "GPU_PRIORITY_VAL": {"type": "STRING", "value": "$penv{GPU_PRIORITY_VAL}"},
           "VIRTUALCAM_GUID": {"type": "STRING", "value": "A3FCE0F5-3493-419F-958A-ABA1250EC20B"},
 
-          "ENABLE_BROWSER": false,
-          "ENABLE_WEBSOCKET": false,
+          "ENABLE_BROWSER": true,
+          "ENABLE_WEBSOCKET": true,
           "ENABLE_SCRIPTING": true,
           "ENABLE_VST": false,
           "ENABLE_VLC": false,
-          "ENABLE_IMAGE_MAGICK": false,
-          "ENABLE_SPECTRALIZER": false,
 
-          "ENABLE_D3D12": true,
           "ENABLE_NVENC": true,
 
-          "ENABLE_LIBX264": false,
-          "ENABLE_AOM": false,
-          "ENABLE_SVTAV1": false,
-          "ENABLE_X265": false,
 
-          "CMAKE_CXX_FLAGS_RELEASE": "/O2 /Ob3 /Oi /Ot /GL /arch:AVX2 /fp:fast /GS-",
+          "CMAKE_CXX_FLAGS_RELEASE": "/O2 /Ob3 /Oi /Ot /GL /arch:AVX2 /GS-",
           "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/LTCG"
       }
 

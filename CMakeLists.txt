@@ -46,11 +46,11 @@ option(ENABLE_SCRIPTING "Enable scripting support" ON)
 option(ENABLE_HEVC "Enable HEVC encoders" ON)
 
 # Disable heavy plugins
-option(ENABLE_BROWSER "Enable browser source" OFF)
+option(ENABLE_BROWSER "Enable browser source" ON)
 option(ENABLE_VST "Enable VST plugins" OFF)
 option(ENABLE_VLC "Enable VLC source" OFF)
 option(ENABLE_IMAGE_MAGICK "Enable ImageMagick" OFF)
-option(ENABLE_WEBSOCKET "Enable Websocket server" OFF)
+option(ENABLE_WEBSOCKET "Enable Websocket server" ON)
 option(ENABLE_AJA "Enable AJA output" OFF)
 
 add_subdirectory(libobs)
