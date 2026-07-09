@@ -148,15 +148,17 @@ void setupSceneItem(void *_data, obs_scene_t *scene)
 }
 
 std::optional<OBSSceneItem> setupExistingSource(std::string_view uuid, bool visible, bool duplicate,
-						SourceCopyInfo *info = nullptr)
+						SourceCopyInfo *info = nullptr, OBSScene scene = nullptr)
 {
 	OBSSourceAutoRelease temp = obs_get_source_by_uuid(uuid.data());
 	if (!temp) {
 		return std::nullopt;
 	}
 
-	OBSBasic *main = OBSBasic::Get();
-	OBSScene scene = main->GetCurrentScene();
+	if (!scene) {
+		OBSBasic *main = OBSBasic::Get();
+		scene = main->GetCurrentScene();
+	}
 	if (!scene) {
 		return std::nullopt;
 	}
@@ -274,7 +276,7 @@ OBSBasicSourceSelect::OBSBasicSourceSelect(OBSBasic *parent, undo_stack &undo_s)
 	connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
 	connect(ui->addExistingButton, &QAbstractButton::clicked, this, &OBSBasicSourceSelect::addSelectedSources);
-	connect(this, &OBSBasicSourceSelect::selectedItemsChanged, this, [=]() {
+	connect(this, &OBSBasicSourceSelect::selectedItemsChanged, this, [this]() {
 		ui->addExistingButton->setEnabled(selectedItems.size() > 0);
 		if (selectedItems.size() > 0) {
 			ui->addExistingButton->setText(QTStr("Add %1 Existing").arg(selectedItems.size()));
@@ -310,7 +312,7 @@ void OBSBasicSourceSelect::obsSourceRemoved(void *data, calldata_t *params)
 				  Qt::QueuedConnection, Q_ARG(QString, QString::fromUtf8(uuidPointer)));
 }
 
-void OBSBasicSourceSelect::sourcePaste(SourceCopyInfo &info, bool duplicate)
+void OBSBasicSourceSelect::sourcePaste(SourceCopyInfo &info, bool duplicate, OBSScene scene)
 {
 	OBSSource source = OBSGetStrongRef(info.weak_source);
 	if (!source) {
@@ -319,7 +321,7 @@ void OBSBasicSourceSelect::sourcePaste(SourceCopyInfo &info, bool duplicate)
 
 	std::string uuid = obs_source_get_uuid(source);
 
-	setupExistingSource(uuid, info.visible, duplicate, &info);
+	setupExistingSource(uuid, info.visible, duplicate, &info, scene);
 }
 
 void OBSBasicSourceSelect::showEvent(QShowEvent *)
