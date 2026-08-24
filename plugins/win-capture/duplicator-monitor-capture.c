@@ -820,9 +820,9 @@ static obs_properties_t *duplicator_capture_properties(void *data)
 		obs_properties_add_list(props, "method", TEXT_METHOD, OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 
 	obs_property_list_add_int(p, TEXT_METHOD_AUTO, METHOD_AUTO);
-	obs_property_list_add_int(p, TEXT_METHOD_DXGI, METHOD_DXGI);
 	obs_property_list_add_int(p, TEXT_METHOD_WGC, METHOD_WGC);
-	obs_property_list_item_disable(p, 2, !wgc_supported);
+	obs_property_list_add_int(p, TEXT_METHOD_DXGI, METHOD_DXGI);
+	obs_property_list_item_disable(p, 1, !wgc_supported);
 	obs_property_set_modified_callback(p, display_capture_method_changed);
 
 	/* monitor dropdown */
